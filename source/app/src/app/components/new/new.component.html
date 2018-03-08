@@ -1,0 +1,18 @@
+<mat-horizontal-stepper #stepper="matHorizontalStepper">
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>Who?</ng-template>
+    <app-contact-details></app-contact-details>
+  </mat-step>
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>What?</ng-template>
+    <app-order-details></app-order-details>    
+  </mat-step>
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>Done!</ng-template>
+    You are now done.
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="stepper.reset()">Reset</button>
+    </div>
+  </mat-step>
+</mat-horizontal-stepper>

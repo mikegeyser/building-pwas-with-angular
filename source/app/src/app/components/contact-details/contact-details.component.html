@@ -1,0 +1,18 @@
+<form [formGroup]="form">
+  <mat-form-field>
+    <input matInput placeholder="Name" formControlName="name" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Surname" formControlName="surname" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Mobile" formControlName="mobile" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Email" formControlName="email" />
+  </mat-form-field>
+  <div>
+    <a mat-button routerLink="../">Cancel</a>
+    <button mat-button matStepperNext>Next</button>
+  </div>
+</form>
