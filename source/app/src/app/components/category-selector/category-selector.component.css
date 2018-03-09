@@ -1,0 +1,24 @@
+:host {
+    font-size: 2em;
+}
+
+h4 {
+    text-align: center;
+    margin: 0;
+}
+
+i {
+    font-style: inherit;
+}
+
+.previous {
+    float: left;
+}
+
+.next {
+    float: right;
+}
+
+span {
+    width: auto;
+}
