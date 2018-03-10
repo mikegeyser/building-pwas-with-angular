@@ -26,8 +26,7 @@
       "environments": {
         "dev": "environments/environment.ts",
         "prod": "environments/environment.prod.ts"
-      },
-      "serviceWorker": true
+      }
     }
   ],
   "e2e": {
@@ -56,26 +55,6 @@
   },
   "defaults": {
     "styleExt": "css",
-    "class": {
-      "spec": false
-    },
-    "component": {
-      "spec": false
-    },
-    "directive": {
-      "spec": false
-    },
-    "guard": {
-      "spec": false
-    },
-    "module": {
-      "spec": false
-    },
-    "pipe": {
-      "spec": false
-    },
-    "service": {
-      "spec": false
-    }
+    "component": {}
   }
 }
