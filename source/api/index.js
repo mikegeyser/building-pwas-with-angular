@@ -29,7 +29,7 @@ const categories = [
 ];
 
 const templates = {
-    base_url: `public/images/`,
+    base_url: `public/images`,
     lotr: [
         'and-my-axe.jpg',
         'elevenses.png',
@@ -55,15 +55,21 @@ const templates = {
     ]
 };
 
-app.use(express.static('public'));
+app.use('/public', express.static('public'));
 
 app.get('/categories', (req, res) => res.json(categories));
 app.get('/templates', (req, res) => res.json(templates));
 app.get('/memes', (req, res) => res.json(memes));
 
 app.get('/memes/:category', (req, res) => {
-    console.log(req.params.category);
-    const filtered = memes.filter((meme) => meme.category === req.params.category);
+    const filtered = memes.filter((meme) => meme.category === req.params.category)
+        .map((meme) => {
+            return {
+                ...meme,
+                template: `${req.protocol}://${req.get('host')}/${templates.base_url}/${meme.category}/${meme.template}`
+            };
+        });
+
     res.json(filtered);
 });
 

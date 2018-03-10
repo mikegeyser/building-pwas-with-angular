@@ -1,5 +1,2 @@
-<ul>
-  <li *ngFor="let meme of memes">
-    {{meme | json}}
-  </li>
-</ul>
+<app-meme *ngFor="let meme of memes" [meme]="meme">
+</app-meme>

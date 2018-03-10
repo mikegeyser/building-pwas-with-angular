@@ -11,12 +11,14 @@ import { CategorySelectorComponent } from './components';
 
 import { ServicesModule } from './services/services.module';
 import { ListComponent } from './components/list/list.component';
+import { MemeComponent } from './components/meme/meme.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CategorySelectorComponent,
-    ListComponent
+    ListComponent,
+    MemeComponent
   ],
   imports: [
     BrowserModule,
