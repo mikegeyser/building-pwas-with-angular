@@ -15,4 +15,8 @@ export class MemeService {
   getByCategory(key: string) {
     return this.http.get<Meme[]>(`${environment.api}/memes/${key}`);
   }
+
+  save(meme: Meme) {
+    return this.http.post(`${environment.api}/memes`, meme);
+  }
 }

@@ -32,12 +32,17 @@
     - Images
         - Add the images routing naively.
         - Show the opaque response warnings, and explain what it is.
-        - Add the cacheresponse and expiration plugins.
+        - Add the cacheresponse (and expiration plugins).
         - Show the images caching in the browser, show the size of the app-cache and storage in devtools.
         - Show the offline support, working properly.
     - Proper updating support of the service worker.
     - Offline editing + background sync.
-
+        - The offline checkbox in DevTools only affects requests from the page. Service Worker requests will continue to go through.
+        - Can debug this.
+        - Show stored requests in IndexDB.
+        TODO: Handle offline gracefully?
+        TODO: Merge cached requests and background sync requests, to show offline 'working'.
+        TODO: When will background sync fire?
 - Lighthouse
     - Show lighthouse report for the original
     - Run for new

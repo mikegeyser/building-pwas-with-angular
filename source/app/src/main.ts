@@ -15,7 +15,7 @@ platformBrowserDynamic()
 function registerServiceWorker() {
   const prefix = ['%cAngular', `background: red; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
 
-  if ('serviceWorker' in navigator) {
+  if (environment.production && 'serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('sw.js')
       .then(reg => {
@@ -42,9 +42,9 @@ function registerServiceWorker() {
         };
       })
       .catch(e => {
-        console.error(prefix, 'Error during service worker registration:', e);
+        console.error(...prefix, 'Error during service worker registration:', e);
       });
   } else {
-    console.warn(prefix, 'Service Worker is not supported');
+    console.warn(...prefix, 'Service Worker is not supported');
   }
 }

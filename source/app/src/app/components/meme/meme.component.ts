@@ -1,5 +1,6 @@
 import { Component, OnInit, ElementRef, Input, ViewChild } from '@angular/core';
 import { Meme } from '../models';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-meme',
@@ -7,15 +8,23 @@ import { Meme } from '../models';
   styleUrls: ['./meme.component.css']
 })
 export class MemeComponent implements OnInit {
-  @Input() meme: Meme;
+  @Input() meme: Meme | Observable<Meme>;
   @ViewChild('meme') canvas: ElementRef;
-  
+
   constructor(private el: ElementRef) { }
 
   ngOnInit() {
-    var context = this.canvas.nativeElement.getContext("2d");
+    if (this.meme instanceof Observable) {
+      this.meme.subscribe(meme => this.drawCanvas(meme));
+    } else {
+      this.drawCanvas(this.meme as Meme);
+    }
+  }
 
-    var draw = function () {
+  private drawCanvas(meme: Meme) {
+    const context = this.canvas.nativeElement.getContext("2d");
+
+    const draw = function () {
       context.canvas.width = image.width;
       context.canvas.height = image.height;
       context.drawImage(image, 0, 0);
@@ -27,29 +36,21 @@ export class MemeComponent implements OnInit {
       context.textAlign = 'center';
 
       // Write top line 
-      if (this.meme.top) {
-        context.fillText(this.meme.top.toUpperCase(), context.canvas.width / 2, 90, context.canvas.width - 10);
-        context.strokeText(this.meme.top.toUpperCase(), context.canvas.width / 2, 90, context.canvas.width - 10);
+      if (meme.top) {
+        context.fillText(meme.top.toUpperCase(), context.canvas.width / 2, 90, context.canvas.width - 10);
+        context.strokeText(meme.top.toUpperCase(), context.canvas.width / 2, 90, context.canvas.width - 10);
       }
 
       // Write bottom line 
-      if (this.meme.bottom) {
-        context.fillText(this.meme.bottom.toUpperCase(), context.canvas.width / 2, context.canvas.height - 10, context.canvas.width - 10);
-        context.strokeText(this.meme.bottom.toUpperCase(), context.canvas.width / 2, context.canvas.height - 10, context.canvas.width - 10);
+      if (meme.bottom) {
+        context.fillText(meme.bottom.toUpperCase(), context.canvas.width / 2, context.canvas.height - 10, context.canvas.width - 10);
+        context.strokeText(meme.bottom.toUpperCase(), context.canvas.width / 2, context.canvas.height - 10, context.canvas.width - 10);
       }
     };
 
-    var image = new Image();
+    const image = new Image();
     image.onload = draw.bind(this, []);
-    image.src = this.meme.template;
-
-    // if (this.showRefresh) {
-    //   var button = document.createElement("button");
-    //   button.attributes["type"] = "button";
-    //   button.textContent = "Refresh";
-    //   button.onclick = draw.bind(this, []);
-    //   element.append(button);
-    // }
+    image.src = meme.template;
   }
 
 }

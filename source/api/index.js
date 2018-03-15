@@ -28,8 +28,9 @@ const categories = [
     { key: 'corgi', description: 'Corgies' }
 ];
 
+const base_url = 'public/images';
+
 const templates = {
-    base_url: `public/images`,
     lotr: [
         'and-my-axe.jpg',
         'elevenses.png',
@@ -58,24 +59,43 @@ const templates = {
 app.use('/public', express.static('public'));
 
 app.get('/categories', (req, res) => res.json(categories));
-app.get('/templates', (req, res) => res.json(templates));
 app.get('/memes', (req, res) => res.json(memes));
 
+
+
+
 app.get('/memes/:category', (req, res) => {
-    const filtered = memes.filter((meme) => meme.category === req.params.category)
+    const category = req.params.category;
+    const filtered = memes.filter((meme) => meme.category === category)
         .map((meme) => {
             return {
                 ...meme,
-                template: `${req.protocol}://${req.get('host')}/${templates.base_url}/${meme.category}/${meme.template}`
+                template: absoluteTemplatePath(req, category, meme.template)
             };
         });
 
     res.json(filtered);
 });
 
+app.get('/templates/:category', (req, res) => {
+    const category = req.params.category;
+    const filtered = templates[category].map(template => {
+        return {
+            fileName: template,
+            fullPath: absoluteTemplatePath(req, category, template)
+        };
+    });
+
+    res.json(filtered);
+});
+
 app.post('/memes', (req, res) => {
-    let meme = req.body();
-    memes.push(meme);
+    memes.unshift(req.body);
+    res.send(200, {});
 });
 
 app.listen(3000, () => console.log('Running on port 3000.'));
+
+function absoluteTemplatePath(req, category, template) {
+    return `${req.protocol}://${req.get('host')}/${base_url}/${category}/${template}`;
+}

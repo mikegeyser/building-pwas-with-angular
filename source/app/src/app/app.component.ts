@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { Category } from './components/models';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +7,4 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 })
 export class AppComponent {
   title = 'app';
-  currentCategory = new BehaviorSubject<Category>(null);
-
-  categoryChanged(category) {
-    this.currentCategory.next(category);
-  }
 }
