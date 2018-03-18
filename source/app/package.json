@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "sw": "workbox injectManifest workbox-config.js",
-    "start-prod": "yarn run build && yarn run sw && http-server dist -c-1 -g true"
+    "start-prod": "yarn run build && yarn run sw && http-server dist -c-1"
   },
   "private": true,
   "dependencies": {
