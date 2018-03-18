@@ -61,9 +61,6 @@ app.use('/public', express.static('public'));
 app.get('/categories', (req, res) => res.json(categories));
 app.get('/memes', (req, res) => res.json(memes));
 
-
-
-
 app.get('/memes/:category', (req, res) => {
     const category = req.params.category;
     const filtered = memes.filter((meme) => meme.category === category)
@@ -97,5 +94,9 @@ app.post('/memes', (req, res) => {
 app.listen(3000, () => console.log('Running on port 3000.'));
 
 function absoluteTemplatePath(req, category, template) {
+    if (template.match(/^http/)){
+        return template;
+    }
+    
     return `${req.protocol}://${req.get('host')}/${base_url}/${category}/${template}`;
 }

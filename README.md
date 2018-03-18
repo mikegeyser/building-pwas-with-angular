@@ -40,8 +40,9 @@
         - The offline checkbox in DevTools only affects requests from the page. Service Worker requests will continue to go through.
         - Can debug this.
         - Show stored requests in IndexDB.
-        TODO: Handle offline gracefully?
-        TODO: Merge cached requests and background sync requests, to show offline 'working'.
+        - Handle offline gracefully.
+        - Change cacheFirst to staleWhileRevalidate.
+        - Merge cached requests and background sync requests, to show offline 'working'.
         TODO: When will background sync fire?
 - Lighthouse
     - Show lighthouse report for the original
