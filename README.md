@@ -31,6 +31,13 @@ Create a `manifest.json` file.
   "Scope": "/",
   "start_url": "/",
   "icons": [
+
+  ],
+  "splash_pages": null
+}
+```
+
+```json
     {
       "src": "assets/icons/icon-72x72.png",
       "sizes": "72x72",
@@ -71,14 +78,10 @@ Create a `manifest.json` file.
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "splash_pages": null
-}
 ```
-
 Add the manifest to the `.angular-cli.json` so that it will be included in the build output.
 
-> _manifest2
+> _manifest3
 #### .angular-cli.json
 ```json
 "assets": [
@@ -88,7 +91,7 @@ Add the manifest to the `.angular-cli.json` so that it will be included in the b
 ],
 ```
 
-> _manifest3
+> _manifest4
 #### src/index.html
 ```html
 <link rel="manifest" href="/manifest.json">
@@ -176,17 +179,19 @@ Register the service worker after the angular app has booted.
 platformBrowserDynamic()
   .bootstrapModule(AppModule)
   .then(registerServiceWorker);
+
+function registerServiceWorker() {
+
+}
 ```
 
 Check to make sure that this is a production build, and that service worker is actually available. Then, register it.
 > _install2
 ```ts
-function registerServiceWorker() {
   if (environment.production && 'serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('sw.js');
   }
-}
 ```
 
 Add some (read: lots) of logging to figure out what's going on.
@@ -215,14 +220,14 @@ Add some (read: lots) of logging to figure out what's going on.
           };
         };
       })
-```
-
-...and a catch, just in case.
-> _install4
-```ts
 .catch(e => {
     console.error(...prefix, 'Error during service worker registration:', e);
 })
+```
+
+> _install4
+```ts
+const prefix = ['%cAngular', `background: red; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
 ```
 
 Then we can build and test it.
@@ -255,12 +260,7 @@ Change the config to respect the inject manifest.
 #### workbox-config.js
 ```js
   "swSrc": "src/sw.js",
-```
-
-> _config2
-#### workbox-config.js
-```js
-"injectionPointRegexp": /(const precacheManifest = )\[\](;)/
+  "injectionPointRegexp": /(const precacheManifest = )\[\](;)/
 ```
 
 ```bash
@@ -270,7 +270,7 @@ Change the config to respect the inject manifest.
 
 We're going to do this a lot, so best to add it to the `package.json` scripts.
 
-> _config3
+> _config2
 #### package.json
 ```json
 "sw": "workbox injectManifest workbox-config.js",
@@ -325,7 +325,8 @@ workbox.routing.registerRoute(
     /.*.(?:png|jpg|jpeg|svg)$/,
     workbox.strategies.cacheFirst({
         cacheName: 'meme-images'
-    }), 'GET');
+    }), 
+    'GET');
 ```
 
 Open up in Chrome and show the error because of the Opaque Response, because by default the CacheFirst strategy doesn't store anything with a response code of 0.
@@ -384,16 +385,9 @@ self.addEventListener('fetch', (event) => {
 });
 ```
 
-> _sw9
-#### src/sw.js
-```js
-let response = fetch(event.request.clone());
-  event.respondWith(response);
-```
-
 We can then elect to make the call on behalf of the request.
 
-> _sw10
+> _sw9
 #### src/sw.js
 ```js
 let response = fetch(event.request.clone());
@@ -403,10 +397,12 @@ event.respondWith(response);
 
 We expect that request to fail if the app is offline, so we catch the error and add it to the background sync queue.
 
-> _sw11
+> _sw10
 #### src/sw.js
 ```js
-.catch(_ => queueChange(request()));
+.catch((err) => {
+    return queue.addRequest(event.request)
+})
 ```
 
 Open Chrome, take the application offline, and add a breakpoint on the catch. Capture a meme, show the breakpoint, and show the request queued in indexdb.
@@ -415,7 +411,7 @@ Open Chrome, take the application offline, and add a breakpoint on the catch. Ca
 
 This would work, but means that the rest of the application is ignorant to the updates. We can do better, so that the offline support is transparent.
 
-> _sw12
+> _sw11
 #### src/sw.js
 ```js
   /*
@@ -429,7 +425,7 @@ This would work, but means that the rest of the application is ignorant to the u
       .catch(_ => queueChange(event.request.clone()));
 ```
 
-> _sw13
+> _sw12
 #### src/sw.js
 ```js
 function invalidateCache(request, actualResponse) {
@@ -442,7 +438,7 @@ function invalidateCache(request, actualResponse) {
 }
 ```
 
-> _sw14
+> _sw13
 #### src/sw.js
 ```js
     return request.json()
@@ -452,8 +448,7 @@ function invalidateCache(request, actualResponse) {
         .then(_ => actualResponse);
 ```
 
-
-> _sw15
+> _sw14
 #### src/sw.js
 ```js
             const url = `${request.url}/${requestData.category}`;
@@ -462,7 +457,8 @@ function invalidateCache(request, actualResponse) {
                 .then(cache => cache.delete(url));
 
 ```
-> _sw16
+
+> _sw15
 #### src/sw.js
 ```js
 function queueChange(request) {
@@ -479,7 +475,7 @@ function queueChange(request) {
 }
 ```
 
-> _sw17
+> _sw16
 #### src/sw.js
 ```js
     return queue.addRequest(request.clone())
@@ -489,7 +485,7 @@ function queueChange(request) {
         });
 ```
 
-> _sw18
+> _sw17
 #### src/sw.js
 ```js
             requestData['offline'] = true;
@@ -501,7 +497,7 @@ function queueChange(request) {
                 });
 ```
 
-> _sw19
+> _sw18
 #### src/sw.js
 ```js
                   return cache.match(url)
@@ -511,7 +507,7 @@ function queueChange(request) {
                         });
 ```
 
-> _sw20
+> _sw19
 #### src/sw.js
 ```js
                             const updatedRequest = [requestData, ...data];
@@ -522,6 +518,13 @@ function queueChange(request) {
 
                             return cache.put(url, fakeResponse.clone())
                                 .then(_ => fakeResponse.clone());
+```
+
+
+Force background sync using the Chrome Devtools. 
+
+```
+  > workbox-background-sync:memes-to-be-saved
 ```
 
 # Script
