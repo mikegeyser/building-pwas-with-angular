@@ -1,0 +1,31 @@
+:host {
+    display: block;
+    padding-bottom: 3.5em;
+}
+mat-toolbar {
+    position: fixed;
+    margin-bottom: 3em;
+}
+
+h4 {
+    text-align: center;
+    margin: 0;
+    width: 100%;
+    font-size: 1.5em;
+}
+
+i {
+    font-style: inherit;
+}
+
+.previous {
+    float: left;
+}
+
+.next {
+    float: right;
+}
+
+span {
+    width: auto;
+}
