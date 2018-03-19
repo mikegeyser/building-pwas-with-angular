@@ -18,7 +18,7 @@ The things I will be doing to convert an angular app to a PWA are:
 
 Create a `manifest.json` file.
 
-> _manifest1
+> # _manifest1
 
 #### src/manifest.json
 ```json
@@ -81,7 +81,7 @@ Create a `manifest.json` file.
 ```
 Add the manifest to the `.angular-cli.json` so that it will be included in the build output.
 
-> _manifest3
+> # _manifest3
 #### .angular-cli.json
 ```json
 "assets": [
@@ -91,7 +91,7 @@ Add the manifest to the `.angular-cli.json` so that it will be included in the b
 ],
 ```
 
-> _manifest4
+> # _manifest4
 #### src/index.html
 ```html
 <link rel="manifest" href="/manifest.json">
@@ -110,7 +110,7 @@ Open the `index.html` in Chrome as a file, to show it without the application mo
 
 Change the inner html from a simple string to some markup.
 
-> _shell1
+> # _shell1
 ```html
     <div class="shell">
       <div class="title">loading...</div>
@@ -122,7 +122,7 @@ Change the inner html from a simple string to some markup.
 
 Add some styling to sketch out what the page is going to look like.
 
-> _shell2
+> # _shell2
 ```html
   <style>
     html,
@@ -174,7 +174,7 @@ Install the service worker in the `src/main.ts` file.
 
 Register the service worker after the angular app has booted.
 
-> _install1
+> # _install1
 ```ts
 platformBrowserDynamic()
   .bootstrapModule(AppModule)
@@ -186,7 +186,7 @@ function registerServiceWorker() {
 ```
 
 Check to make sure that this is a production build, and that service worker is actually available. Then, register it.
-> _install2
+> # _install2
 ```ts
   if (environment.production && 'serviceWorker' in navigator) {
     navigator.serviceWorker
@@ -195,7 +195,7 @@ Check to make sure that this is a production build, and that service worker is a
 ```
 
 Add some (read: lots) of logging to figure out what's going on.
-> _install3
+> # _install3
 ```ts
 .then(reg => {
         console.log(...prefix, 'Registration successful', reg);
@@ -225,7 +225,7 @@ Add some (read: lots) of logging to figure out what's going on.
 })
 ```
 
-> _install4
+> # _install4
 ```ts
 const prefix = ['%cAngular', `background: red; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
 ```
@@ -243,7 +243,7 @@ Take a look at the Application tab in Chrome dev tools, to see the service worke
 
 A more powerful way to do this is not via config alone, but a template `sw.js`.
 
-> _sw1
+> # _sw1
 #### src/sw.js
 ```js
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.0.0-beta.2/workbox-sw.js");
@@ -256,7 +256,7 @@ workbox.precaching.precacheAndRoute(precacheManifest);
 
 Change the config to respect the inject manifest.
 
-> _config1
+> # _config1
 #### workbox-config.js
 ```js
   "swSrc": "src/sw.js",
@@ -270,7 +270,7 @@ Change the config to respect the inject manifest.
 
 We're going to do this a lot, so best to add it to the `package.json` scripts.
 
-> _config2
+> # _config2
 #### package.json
 ```json
 "sw": "workbox injectManifest workbox-config.js",
@@ -287,7 +287,7 @@ And we should see the same behaviour.
 
 Add a caching route for categories.
 
-> _sw2
+> # _sw2
 #### src/sw.js
 ```js
 workbox.routing.registerRoute(
@@ -302,7 +302,7 @@ Open Chrome and verify that the categories are being served from service worker.
 
 Cache the other routes of interest.
 
-> _sw3
+> # _sw3
 #### src/sw.js
 ```js
 const dataCacheConfig = {
@@ -318,7 +318,7 @@ workbox.routing.registerRoute(/.*memes\/.\w+/, workbox.strategies.cacheFirst(dat
 # 4.2. Cache images
 
 Add some simple image caching (before the data caching).
-> _sw4
+> # _sw4
 #### src/sw.js
 ```js
 workbox.routing.registerRoute(
@@ -333,7 +333,7 @@ Open up in Chrome and show the error because of the Opaque Response, because by 
 
 Add the cacheable response plugin to the image routing, explicitly allowing status of 0.
 
-> _sw5
+> # _sw5
 ### src/sw.js
 ```js
 plugins: [
@@ -353,7 +353,7 @@ TODO: Complete this.
 
 We can automate the skip loading that we've been doing manually to force the install of the service worker.
 
-> _sw6
+> # _sw6
 #### src/sw.js
 ```js
 self.addEventListener('install', function(event) {
@@ -367,7 +367,7 @@ This will suffice for our current need, but when the service worker updates the 
 
 Workbox has a built in queue mechanism, based off of IndexDB and the background sync api.
 
-> _sw7
+> # _sw7
 #### src/sw.js
 ```js
 const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
@@ -375,7 +375,7 @@ const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
 
 Can listen to all `fetch` events, that is essentially any http request proxied through service worker. On the event we can opt to filter by url and method, to only deal with the `POST` to the `memes` api.
 
-> _sw8
+> # _sw8
 #### src/sw.js
 ```js
 self.addEventListener('fetch', (event) => {
@@ -387,7 +387,7 @@ self.addEventListener('fetch', (event) => {
 
 We can then elect to make the call on behalf of the request.
 
-> _sw9
+> # _sw9
 #### src/sw.js
 ```js
 let response = fetch(event.request.clone());
@@ -397,7 +397,7 @@ event.respondWith(response);
 
 We expect that request to fail if the app is offline, so we catch the error and add it to the background sync queue.
 
-> _sw10
+> # _sw10
 #### src/sw.js
 ```js
 .catch((err) => {
@@ -411,7 +411,7 @@ Open Chrome, take the application offline, and add a breakpoint on the catch. Ca
 
 This would work, but means that the rest of the application is ignorant to the updates. We can do better, so that the offline support is transparent.
 
-> _sw11
+> # _sw11
 #### src/sw.js
 ```js
   /*
@@ -425,7 +425,7 @@ This would work, but means that the rest of the application is ignorant to the u
       .catch(_ => queueChange(event.request.clone()));
 ```
 
-> _sw12
+> # _sw12
 #### src/sw.js
 ```js
 function invalidateCache(request, actualResponse) {
@@ -438,7 +438,7 @@ function invalidateCache(request, actualResponse) {
 }
 ```
 
-> _sw13
+> # _sw13
 #### src/sw.js
 ```js
     return request.json()
@@ -448,7 +448,7 @@ function invalidateCache(request, actualResponse) {
         .then(_ => actualResponse);
 ```
 
-> _sw14
+> # _sw14
 #### src/sw.js
 ```js
             const url = `${request.url}/${requestData.category}`;
@@ -458,7 +458,7 @@ function invalidateCache(request, actualResponse) {
 
 ```
 
-> _sw15
+> # _sw15
 #### src/sw.js
 ```js
 function queueChange(request) {
@@ -475,7 +475,7 @@ function queueChange(request) {
 }
 ```
 
-> _sw16
+> # _sw16
 #### src/sw.js
 ```js
     return queue.addRequest(request.clone())
@@ -485,7 +485,7 @@ function queueChange(request) {
         });
 ```
 
-> _sw17
+> # _sw17
 #### src/sw.js
 ```js
             requestData['offline'] = true;
@@ -497,7 +497,7 @@ function queueChange(request) {
                 });
 ```
 
-> _sw18
+> # _sw18
 #### src/sw.js
 ```js
                   return cache.match(url)
@@ -507,7 +507,7 @@ function queueChange(request) {
                         });
 ```
 
-> _sw19
+> # _sw19
 #### src/sw.js
 ```js
                             const updatedRequest = [requestData, ...data];
