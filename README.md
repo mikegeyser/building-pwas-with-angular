@@ -285,11 +285,151 @@ And we should see the same behaviour.
 
 # 4.1. Cache api data
 
-**********
-TODO
-*******
+Add a caching route for categories.
 
-#Script
+> _sw2
+#### src/sw.js
+```js
+workbox.routing.registerRoute(
+    /.*categories/, 
+    workbox.strategies.cacheFirst({
+        cacheName: 'meme-data'
+    }), 
+    'GET');
+```
+
+Open Chrome and verify that the categories are being served from service worker. Check that the categories are being stored in the cache. Show the offline behaviour.
+
+Cache the other routes of interest.
+
+> _sw3
+#### src/sw.js
+```js
+const dataCacheConfig = {
+    cacheName: 'meme-data'
+};
+
+workbox.routing.registerRoute(/.*categories/, workbox.strategies.cacheFirst(dataCacheConfig), 'GET');
+workbox.routing.registerRoute(/.*templates/, workbox.strategies.cacheFirst(dataCacheConfig), 'GET');
+workbox.routing.registerRoute(/.*memes\/.\w+/, workbox.strategies.cacheFirst(dataCacheConfig), 'GET');
+    
+```
+
+# 4.2. Cache images
+
+Add some simple image caching (before the data caching).
+> _sw4
+#### src/sw.js
+```js
+workbox.routing.registerRoute(
+    /.*.(?:png|jpg|jpeg|svg)$/,
+    workbox.strategies.cacheFirst({
+        cacheName: 'meme-images'
+    }), 'GET');
+```
+
+Open up in Chrome and show the error because of the Opaque Response, because by default the CacheFirst strategy doesn't store anything with a response code of 0.
+
+Add the cacheable response plugin to the image routing, explicitly allowing status of 0.
+
+> _sw5
+### src/sw.js
+```js
+plugins: [
+    new workbox.cacheableResponse.Plugin({
+        statuses: [0, 200],
+    })
+]
+```
+
+Open up in Chrome, show the images stored in the cache, and then the storage summary. Take the application offline, and show it working.
+
+# 5. Proper updating for the service worker.
+
+**********
+TODO: Complete this.
+**********
+
+We can automate the skip loading that we've been doing manually to force the install of the service worker.
+
+> _sw6
+#### src/sw.js
+```js
+ 
+```
+
+This will suffice for our current need, but when the service worker updates the page will already have loaded. This means that we will need to reload the page to make full use of the updated service worker.
+
+We can do this automatically, which might be a poor experience, or we can instead prompt the user to reload.
+
+> _sw7
+### src/sw.js
+```js
+ 
+```
+
+# 6.1 Offline updates
+
+**********
+TODO: Complete this.
+**********
+
+Workbox has a built in queue mechanism, based off of IndexDB and the background sync api.
+
+> _sw8
+#### src/sw.js
+```js
+const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
+```
+
+Can listen to all `fetch` events, that is essentially any http request proxied through service worker.
+
+> _sw9
+#### src/sw.js
+```js
+self.addEventListener('fetch', (event) => {
+
+});
+```
+
+On the event we can opt to filter by url and method, to only deal with the `POST` to the `memes` api.
+
+> _sw10
+#### src/sw.js
+```js
+if (event.request.url.match(/.*memes/) && event.request.method === 'POST') {
+
+}
+```
+
+We can then elect to make the call on behalf of the request.
+
+> _sw11
+#### src/sw.js
+```js
+let response = fetch(event.request.clone());
+
+event.respondWith(response);
+```
+
+We expect that request to fail if the app is offline, so we catch the error and add it to the background sync queue.
+
+> _sw12
+#### src/sw.js
+```js
+.catch((err) => {
+    return queue.addRequest(event.request)
+})
+```
+
+Open Chrome, take the application offline, and add a breakpoint on the catch. Capture a meme, show the breakpoint, and show the request queued in indexdb.
+
+# 6.2 Offline updates (take 2)
+
+This would work, but means that the rest of the application is ignorant to the updates. We can do better, so that the offline support is transparent.
+
+
+# Script
 
 - Before
     - Demo
