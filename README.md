@@ -362,59 +362,38 @@ self.addEventListener('install', function(event) {
 
 This will suffice for our current need, but when the service worker updates the page will already have loaded. This means that we will need to reload the page to make full use of the updated service worker.
 
-**********
-TODO: Should I include this?
-```
-navigator.serviceWorker.addEventListener('controllerchange',
-  function() { window.location.reload(); }
-);
-````
-**********
-We can use the BroadcastChannel api to communicate between the service worker and the foreground.
-
-> _sw7
-### src/sw.js
-```js
- 
-```
-
 # 6.1 Offline updates
-
-**********
-TODO: Complete this.
-**********
 
 Workbox has a built in queue mechanism, based off of IndexDB and the background sync api.
 
-> _sw8
+> _sw7
 #### src/sw.js
 ```js
 const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
 ```
 
-Can listen to all `fetch` events, that is essentially any http request proxied through service worker.
+Can listen to all `fetch` events, that is essentially any http request proxied through service worker. On the event we can opt to filter by url and method, to only deal with the `POST` to the `memes` api.
+
+> _sw8
+#### src/sw.js
+```js
+self.addEventListener('fetch', (event) => {
+  if (event.request.url.match(/.*memes/) && event.request.method === 'POST') {
+
+  }
+});
+```
 
 > _sw9
 #### src/sw.js
 ```js
-self.addEventListener('fetch', (event) => {
-
-});
-```
-
-On the event we can opt to filter by url and method, to only deal with the `POST` to the `memes` api.
-
-> _sw10
-#### src/sw.js
-```js
-if (event.request.url.match(/.*memes/) && event.request.method === 'POST') {
-
-}
+let response = fetch(event.request.clone());
+  event.respondWith(response);
 ```
 
 We can then elect to make the call on behalf of the request.
 
-> _sw11
+> _sw10
 #### src/sw.js
 ```js
 let response = fetch(event.request.clone());
@@ -424,12 +403,10 @@ event.respondWith(response);
 
 We expect that request to fail if the app is offline, so we catch the error and add it to the background sync queue.
 
-> _sw12
+> _sw11
 #### src/sw.js
 ```js
-.catch((err) => {
-    return queue.addRequest(event.request)
-})
+.catch(_ => queueChange(request()));
 ```
 
 Open Chrome, take the application offline, and add a breakpoint on the catch. Capture a meme, show the breakpoint, and show the request queued in indexdb.
@@ -438,6 +415,114 @@ Open Chrome, take the application offline, and add a breakpoint on the catch. Ca
 
 This would work, but means that the rest of the application is ignorant to the updates. We can do better, so that the offline support is transparent.
 
+> _sw12
+#### src/sw.js
+```js
+  /*
+      1. Submit request
+      2. Invalidate cache (if successful)
+      3. Queue the change (if failed)
+  */
+  
+  let response = fetch(event.request.clone())
+      .then(actualResponse => invalidateCache(event.request.clone(), actualResponse))
+      .catch(_ => queueChange(event.request.clone()));
+```
+
+> _sw13
+#### src/sw.js
+```js
+function invalidateCache(request, actualResponse) {
+    /*
+        1. Read the request data.
+        2. Open the cache.
+        3. Delete anything that matches the url.
+        4. Return the actual response.
+     */
+}
+```
+
+> _sw14
+#### src/sw.js
+```js
+    return request.json()
+        .then(requestData => {
+            
+        })
+        .then(_ => actualResponse);
+```
+
+
+> _sw15
+#### src/sw.js
+```js
+            const url = `${request.url}/${requestData.category}`;
+            
+            return caches.open('meme-data')
+                .then(cache => cache.delete(url));
+
+```
+> _sw16
+#### src/sw.js
+```js
+function queueChange(request) {
+    /*
+        1. Queue the change.
+        2. Read the request data.
+        3. Open the cache.
+        4. Find the matching response.
+        5. Read the cached response.
+        6. Create a new response.
+        7. Update the cached response.
+        8. Return a fake response.
+     */
+}
+```
+
+> _sw17
+#### src/sw.js
+```js
+    return queue.addRequest(request.clone())
+        .then(_ => request.json())
+        .then(requestData => {
+            
+        });
+```
+
+> _sw18
+#### src/sw.js
+```js
+            requestData['offline'] = true;
+            const url = `${request.url}/${requestData.category}`;
+
+            return caches.open('meme-data')
+                .then(cache => {
+                    
+                });
+```
+
+> _sw19
+#### src/sw.js
+```js
+                  return cache.match(url)
+                        .then(cachedResponse => cachedResponse.json())
+                        .then(data => {
+
+                        });
+```
+
+> _sw20
+#### src/sw.js
+```js
+                            const updatedRequest = [requestData, ...data];
+
+                            const fakeResponse = new Response(
+                                JSON.stringify(updatedRequest),
+                                { status: 200 });
+
+                            return cache.put(url, fakeResponse.clone())
+                                .then(_ => fakeResponse.clone());
+```
 
 # Script
 
@@ -509,6 +594,7 @@ This would work, but means that the rest of the application is ignorant to the u
         - Handle offline gracefully.
         - Change cacheFirst to staleWhileRevalidate.
         - Merge cached requests and background sync requests, to show offline 'working'.
+        
         TODO: When will background sync fire?
     
     - Bundle size?

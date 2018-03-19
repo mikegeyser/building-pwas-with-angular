@@ -33,52 +33,70 @@ const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
 self.addEventListener('fetch', (event) => {
     if (event.request.url.match(/.*memes/) && event.request.method === 'POST') {
 
-        const request = () => event.request.clone();
+        /*
+            1. Submit request
+            2. Invalidate cache (if successful)
+            3. Queue the change (if failed)
+        */
 
-        let response = fetch(request())
-            .then(actualResponse => invalidateCache(request(), actualResponse))
-            .catch(_ => queueChange(request()));
+        let response = fetch(event.request.clone())
+            .then(actualResponse => invalidateCache(event.request.clone(), actualResponse))
+            .catch(_ => queueChange(event.request.clone()));
 
         event.respondWith(response);
     }
 });
 
+function invalidateCache(request, actualResponse) {
+    /*
+        1. Read the request data.
+        2. Open the cache.
+        3. Delete anything that matches the url.
+        4. Return the actual response.
+     */
+
+    return request.json()
+        .then(requestData => {
+            const url = `${request.url}/${requestData.category}`;
+            
+            return caches.open('meme-data')
+                .then(cache => cache.delete(url));
+        })
+        .then(_ => actualResponse);
+}
+
 function queueChange(request) {
+    /*
+        1. Queue the change.
+        2. Read the request data.
+        3. Open the cache.
+        4. Find the matching response.
+        5. Read the cached response.
+        6. Create a new response.
+        7. Update the cached response.
+        8. Return a fake response.
+     */
+
     return queue.addRequest(request.clone())
         .then(_ => request.json())
         .then(requestData => {
             requestData['offline'] = true;
             const url = `${request.url}/${requestData.category}`;
 
-            return updateCache(url, requestData);
-        });
-}
+            return caches.open('meme-data')
+                .then(cache => {
+                    return cache.match(url)
+                        .then(cachedResponse => cachedResponse.json())
+                        .then(data => {
+                            const updatedRequest = [requestData, ...data];
 
-function updateCache(url, requestData) {
-    return caches.open('meme-data')
-        .then(cache => {
-            return cache.match(url)
-                .then(cachedResponse => cachedResponse.json())
-                .then(data => {
-                    const updatedRequest = [requestData, ...data];
+                            const fakeResponse = new Response(
+                                JSON.stringify(updatedRequest),
+                                { status: 200 });
 
-                    const fakeResponse = new Response(
-                        JSON.stringify(updatedRequest),
-                        { status: 200 });
-
-                    return cache.put(url, fakeResponse.clone())
-                        .then(_ => fakeResponse.clone());
+                            return cache.put(url, fakeResponse.clone())
+                                .then(_ => fakeResponse.clone());
+                        });
                 });
         });
-}
-
-function invalidateCache(request, actualResponse) {
-    return request.json()
-        .then(requestData => {
-            const url = `${request.url}/${requestData.category}`;
-
-            return caches.open('meme-data')
-                .then(cache => cache.delete(url));;
-        })
-        .then(_ => actualResponse);
 }
