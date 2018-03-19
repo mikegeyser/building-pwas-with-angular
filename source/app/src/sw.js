@@ -24,6 +24,10 @@ workbox.routing.registerRoute(/.*categories/, workbox.strategies.cacheFirst(data
 workbox.routing.registerRoute(/.*templates/, workbox.strategies.cacheFirst(dataCacheConfig), 'GET');
 workbox.routing.registerRoute(/.*memes\/.\w+/, workbox.strategies.staleWhileRevalidate(dataCacheConfig), 'GET');
 
+self.addEventListener('install', function (event) {
+    self.skipWaiting();
+});
+
 const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
 
 self.addEventListener('fetch', (event) => {

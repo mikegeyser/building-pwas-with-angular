@@ -355,12 +355,22 @@ We can automate the skip loading that we've been doing manually to force the ins
 > _sw6
 #### src/sw.js
 ```js
- 
+self.addEventListener('install', function(event) {
+  self.skipWaiting();
+});
 ```
 
 This will suffice for our current need, but when the service worker updates the page will already have loaded. This means that we will need to reload the page to make full use of the updated service worker.
 
-We can do this automatically, which might be a poor experience, or we can instead prompt the user to reload.
+**********
+TODO: Should I include this?
+```
+navigator.serviceWorker.addEventListener('controllerchange',
+  function() { window.location.reload(); }
+);
+````
+**********
+We can use the BroadcastChannel api to communicate between the service worker and the foreground.
 
 > _sw7
 ### src/sw.js
@@ -500,6 +510,9 @@ This would work, but means that the rest of the application is ignorant to the u
         - Change cacheFirst to staleWhileRevalidate.
         - Merge cached requests and background sync requests, to show offline 'working'.
         TODO: When will background sync fire?
+    
+    - Bundle size?
+        - Should I interrogate this?
 
 - Lighthouse
     - Show original
