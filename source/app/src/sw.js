@@ -33,31 +33,52 @@ const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
 self.addEventListener('fetch', (event) => {
     if (event.request.url.match(/.*memes/) && event.request.method === 'POST') {
 
-        let response = fetch(event.request.clone())
-            .catch((err) => {
-                return queue.addRequest(event.request)
-                    .then(_ => event.request.json())
-                    .then(requestData => {
-                        requestData['offline'] = true;
-                        return caches.open('meme-data')
-                            .then(cache => {
-                                const url = `${event.request.url}/${requestData.category}`;
-                                return cache.match(url)
-                                    .then(cachedResponse => cachedResponse.json())
-                                    .then(data => {
-                                        const updatedRequest = [requestData, ...data];
-                                        const wat = new Response(JSON.stringify(updatedRequest), {
-                                            status: 200,
-                                            headers: {
-                                                "Content-Type": "application/json"
-                                            }
-                                        });
-                                        return cache.put(url, wat);
-                                    });
-                            })
-                    });
-            });
+        const request = () => event.request.clone();
+
+        let response = fetch(request())
+            .then(actualResponse => invalidateCache(request(), actualResponse))
+            .catch(_ => queueChange(request()));
 
         event.respondWith(response);
     }
 });
+
+function queueChange(request) {
+    return queue.addRequest(request.clone())
+        .then(_ => request.json())
+        .then(requestData => {
+            requestData['offline'] = true;
+            const url = `${request.url}/${requestData.category}`;
+
+            return updateCache(url, requestData);
+        });
+}
+
+function updateCache(url, requestData) {
+    return caches.open('meme-data')
+        .then(cache => {
+            return cache.match(url)
+                .then(cachedResponse => cachedResponse.json())
+                .then(data => {
+                    const updatedRequest = [requestData, ...data];
+
+                    const fakeResponse = new Response(
+                        JSON.stringify(updatedRequest),
+                        { status: 200 });
+
+                    return cache.put(url, fakeResponse.clone())
+                        .then(_ => fakeResponse.clone());
+                });
+        });
+}
+
+function invalidateCache(request, actualResponse) {
+    return request.json()
+        .then(requestData => {
+            const url = `${request.url}/${requestData.category}`;
+
+            return caches.open('meme-data')
+                .then(cache => cache.delete(url));;
+        })
+        .then(_ => actualResponse);
+}

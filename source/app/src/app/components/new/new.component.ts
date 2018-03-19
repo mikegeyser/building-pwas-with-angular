@@ -55,7 +55,8 @@ export class NewComponent implements OnInit {
   save() {
     if (this.form.valid) {
       const meme: Meme = this.createMeme(this.form.value);
-      this.memeService.save(meme).subscribe(_ => this.router.navigate(['/']));
+      this.memeService.save(meme)
+        .subscribe(_ => this.router.navigate(['/']));
     }
   }
 }
