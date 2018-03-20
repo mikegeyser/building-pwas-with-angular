@@ -146,6 +146,12 @@ Add some styling to sketch out what the page is going to look like.
   </style>
 ```
 
+Rebuild the solution.
+
+```bash
+>> ng build --prod
+```
+
 # 3.1. Precache all essential assets
 
 ```bash
@@ -234,6 +240,9 @@ Then we can build and test it.
 
 ```bash
 >> ng build --prod
+
+>> workbox generateSW workbox-config.js
+
 >> http-server dist -c-1
 ```
 
@@ -273,12 +282,11 @@ We're going to do this a lot, so best to add it to the `package.json` scripts.
 > # _config2
 #### package.json
 ```json
-"sw": "workbox injectManifest workbox-config.js",
-"start-prod": "yarn run build && yarn run sw && http-server dist -c-1"
+"start-sw": "workbox injectManifest workbox-config.js && http-server dist -c 0"
 ```
 
 ```bash
->> yarn start-prod
+>> yarn start-sw
 ```
 
 And we should see the same behaviour.
@@ -329,27 +337,9 @@ workbox.routing.registerRoute(
     'GET');
 ```
 
-Open up in Chrome and show the error because of the Opaque Response, because by default the CacheFirst strategy doesn't store anything with a response code of 0.
-
-Add the cacheable response plugin to the image routing, explicitly allowing status of 0.
-
-> # _sw5
-### src/sw.js
-```js
-plugins: [
-    new workbox.cacheableResponse.Plugin({
-        statuses: [0, 200],
-    })
-]
-```
-
 Open up in Chrome, show the images stored in the cache, and then the storage summary. Take the application offline, and show it working.
 
 # 5. Proper updating for the service worker.
-
-**********
-TODO: Complete this.
-**********
 
 We can automate the skip loading that we've been doing manually to force the install of the service worker.
 
@@ -441,20 +431,20 @@ function invalidateCache(request, actualResponse) {
 > # _sw13
 #### src/sw.js
 ```js
-    return request.json()
-        .then(requestData => {
-            
-        })
-        .then(_ => actualResponse);
+return request.json()
+    .then(requestData => {
+        
+    })
+    .then(_ => actualResponse);
 ```
 
 > # _sw14
 #### src/sw.js
 ```js
-            const url = `${request.url}/${requestData.category}`;
-            
-            return caches.open('meme-data')
-                .then(cache => cache.delete(url));
+const url = `${request.url}/${requestData.category}`;
+
+return caches.open('meme-data')
+    .then(cache => cache.delete(url));
 
 ```
 
@@ -478,46 +468,46 @@ function queueChange(request) {
 > # _sw16
 #### src/sw.js
 ```js
-    return queue.addRequest(request.clone())
-        .then(_ => request.json())
-        .then(requestData => {
-            
-        });
+return queue.addRequest(request.clone())
+    .then(_ => request.clone().json())
+    .then(requestData => {
+        
+    });
 ```
 
 > # _sw17
 #### src/sw.js
 ```js
-            requestData['offline'] = true;
-            const url = `${request.url}/${requestData.category}`;
+requestData['offline'] = true;
+const url = `${request.url}/${requestData.category}`;
 
-            return caches.open('meme-data')
-                .then(cache => {
-                    
-                });
+return caches.open('meme-data')
+    .then(cache => {
+        
+    });
 ```
 
 > # _sw18
 #### src/sw.js
 ```js
-                  return cache.match(url)
-                        .then(cachedResponse => cachedResponse.json())
-                        .then(data => {
+return cache.match(url)
+    .then(cachedResponse => cachedResponse.json())
+    .then(data => {
 
-                        });
+    });
 ```
 
 > # _sw19
 #### src/sw.js
 ```js
-                            const updatedRequest = [requestData, ...data];
+const updatedRequest = [requestData, ...data];
 
-                            const fakeResponse = new Response(
-                                JSON.stringify(updatedRequest),
-                                { status: 200 });
+const fakeResponse = new Response(
+    JSON.stringify(updatedRequest),
+    { status: 200 });
 
-                            return cache.put(url, fakeResponse.clone())
-                                .then(_ => fakeResponse.clone());
+return cache.put(url, fakeResponse.clone())
+    .then(_ => fakeResponse.clone());
 ```
 
 
