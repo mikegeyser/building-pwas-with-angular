@@ -44,7 +44,7 @@ export class MemeComponent implements OnInit {
         context.putImageData(imageData, 0, 0);
       }
 
-      context.font = "100px Arial";
+      context.font = "100px Impact";
       context.fillStyle = 'white';
       context.strokeStyle = 'black';
       context.lineWidth = 4;
