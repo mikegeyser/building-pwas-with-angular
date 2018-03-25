@@ -1,0 +1,47 @@
+{
+	"index.html": {
+		"prefix": "_manifest3",
+		"body": [
+			"<link rel=\"manifest\" href=\"/manifest.json\">"
+		],
+		"description": "index.html"
+	},
+	"shell content": {
+		"prefix": "_shell1",
+		"body": [
+			"<div class=\"shell\">",
+			"  <div class=\"title\">loading...</div>",
+			"  <div class=\"meme\">&nbsp;</div>",
+			"  <div class=\"meme\">&nbsp;</div>",
+			"  <div class=\"meme\">&nbsp;</div>",
+			"</div>",
+		],
+		"description": "shell content"
+	},
+	"shell style": {
+		"prefix": "_shell2",
+		"body": [
+			"<style>",
+			"  html,",
+			"  body {",
+			"    margin: 0;",
+			"  }",
+			"  ",
+			"  .shell .title {",
+			"    background-color: #3f51b5;",
+			"    color: #fff;",
+			"    text-align: center;",
+			"    font: 32px sans-serif;",
+			"    line-height: 56px;",
+			"  }",
+			"  ",
+			"  .shell .meme {",
+			"    margin: 0.5em 1em;",
+			"    background-color: #e0e0e0;",
+			"    min-height: 250px;",
+			"  }",
+			"</style>",
+		],
+		"description": "shell style"
+	},
+}

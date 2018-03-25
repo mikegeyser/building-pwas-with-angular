@@ -1,0 +1,15 @@
+{
+	"chain promise on bootstrap": {
+		"prefix": "_install1",
+		"body": [
+			"  .then(registerServiceWorker);",
+			"",
+			"function registerServiceWorker() {",
+			"  if (environment.production && 'serviceWorker' in navigator) {",
+			"    navigator.serviceWorker.register('sw.js');",
+			"  }",
+			"}",
+		],
+		"description": "chain promise on bootstrap"
+	},
+}
