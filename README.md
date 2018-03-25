@@ -185,7 +185,7 @@ A more powerful way to do this is not via config alone, but a template `sw.js`.
 > # _sw1
 #### src/sw.js
 ```js
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.0.0-beta.2/workbox-sw.js");
+importScripts("workbox-v3.0.1/workbox-sw.js");
 
 const precacheManifest = [];
 
@@ -231,6 +231,8 @@ Then we can build and test it.
 ```bash
 >> workbox injectManifest workbox-config.js
 
+>> workbox copyLibraries dist/
+
 >> http-server dist/ -c 0
 ```
 
@@ -239,7 +241,7 @@ We're going to do this a lot, so best to add it to the `package.json` scripts.
 > # _config2
 #### package.json
 ```json
-"start-sw": "workbox injectManifest workbox-config.js && http-server dist -c 0"
+"start-sw": "workbox injectManifest workbox-config.js && workbox copyLibraries dist/ &&  http-server dist -c 0"
 ```
 
 ```bash

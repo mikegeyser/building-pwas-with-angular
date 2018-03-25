@@ -2,7 +2,7 @@
 	"sw template": {
 		"prefix": "_sw1",
 		"body": [
-			"importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.0.0-beta.2/workbox-sw.js');",
+			"importScripts('workbox-v3.0.1/workbox-sw.js');",
 			"",
 			"const precacheManifest = [];",
 			"",
