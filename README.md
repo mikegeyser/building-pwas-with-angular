@@ -88,6 +88,8 @@ Add the manifest to the `.angular-cli.json` so that it will be included in the b
 ],
 ```
 
+> # ng serve
+
 > # _manifest3
 #### src/index.html
 ```html
@@ -151,6 +153,11 @@ Rebuild the solution.
 
 # 3.1. Precache all essential assets
 
+> # ng build --prod 
+> # new tab
+
+> # clear
+
 ```bash
 >> npm install -g workbox-cli
 ```
@@ -171,7 +178,7 @@ Generate the service worker.
 >> workbox generateSW workbox-config.js
 ```
 
-> # Open the `dist/sw.js` and show the generated code.
+> # Open the `src/workbox-config.js` and `dist/sw.js` and show the generated code.
 
 A more powerful way to do this is not via config alone, but a template `sw.js`.
 
@@ -218,14 +225,14 @@ Then we can build and test it.
 
 ```bash
 >> ng build --prod
+```
+> # new tab
 
+```bash
 >> workbox injectManifest workbox-config.js
 
->> http-server dist -c 0
+>> http-server dist/ -c 0
 ```
-> # Open Chrome show `sw.js` registration, and the network panel.
-
-Take a look at the Application tab in Chrome dev tools, to see the service worker installed. Switching the network offline will show that the assets are served from cache.
 
 We're going to do this a lot, so best to add it to the `package.json` scripts.
 
@@ -239,7 +246,9 @@ We're going to do this a lot, so best to add it to the `package.json` scripts.
 >> yarn start-sw
 ```
 
-And we should see the same behaviour.
+> # Open Chrome show `sw.js` registration, and the network panel.
+
+Take a look at the Application tab in Chrome dev tools, to see the service worker installed. Switching the network offline will show that the assets are served from cache.
 
 # 4.1. Cache api data
 
