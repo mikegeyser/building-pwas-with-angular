@@ -1,4 +1,5 @@
-<img src='presentation/images/devconf.jpg' align="left" style="float: left; margin: 0 20px 20px 0; width: 200px">
+<img src='presentation/images/devconf.jpg' align="left" style="float: left; margin: 0 20px 20px 0; width: 100px">
+
 # Building Progressive Web Apps with Angular
 
 This talk was presented at [DevConf South Africa 2018](https://www.devconf.co.za/), in both Johannesburg and Cape Town.
