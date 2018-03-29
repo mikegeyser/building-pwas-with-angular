@@ -1,11 +1,18 @@
-# devconf-18
+<img src='presentation/images/devconf.jpg' align="left" style="float: left; margin: 0 20px 20px 0; width: 200px">
+# Building Progressive Web Apps with Angular
 
-# Demo
+This talk was presented at [DevConf South Africa 2018](https://www.devconf.co.za/), in both Johannesburg and Cape Town.
 
-- Show the meme carousel
-- Add a new meme
-- Look at generated Lighthouse report
+The holy grail of web applications is having them be near-native performance, and to a large degree this has driven the JavaScript revolution. To truly realise that goal we need to embrace native design thinking for our applications, applying it not only to our code but also to our content. Using ideas from Progressive Web Applications and a modern framework such as Angular we can create engaging, fast and available application experiences - the best of both native and web.
 
+This code-oriented talk will show how to practically use select principles of Progressive Web Applications in conjunction with Angular to create fast and compelling web experiences. It will cover the creation of an application shell and go into using service workers for preloading, caching and even offline support.
+
+**The Bio:**
+Mike Geyser is a programmer at BBD in the R&D team, co-organiser of the Jozi.JS meetup group, a frequent technical speaker, and loves the web. He has been hacking on it since Geocities was a thing, and has the keening wail of dialup modem etched into his subconscious. While he is fluent in several ‘golden hammer’ programming languages, he has a long-lived love affair with JavaScript, and cannot see its (many, obvious) flaws. He has worked on lots of interesting enterprise applications, but it is the challenges of the public web that really appeal to him - having spent his formative years building transactional websites. He is always eager to talk about the web platform, but be warned, he is prone to hyperbole.
+
+**The Twitters: [@mikegeyser](https://twitter.com/mikegeyser)**
+
+# The Demo!
 
 The things I will be doing to convert an angular app to a PWA are:
 1. Create an app manifest
@@ -18,7 +25,7 @@ The things I will be doing to convert an angular app to a PWA are:
 
 Create a `manifest.json` file.
 
-> # _manifest1
+> Snippet: _manifest1
 
 #### src/manifest.json
 ```json
@@ -78,7 +85,7 @@ Create a `manifest.json` file.
 
 Add the manifest to the `.angular-cli.json` so that it will be included in the build output.
 
-> # _manifest2
+> Snippet: _manifest2
 #### .angular-cli.json
 ```json
 "assets": [
@@ -90,7 +97,7 @@ Add the manifest to the `.angular-cli.json` so that it will be included in the b
 
 > # ng serve
 
-> # _manifest3
+> Snippet: _manifest3
 #### src/index.html
 ```html
 <link rel="manifest" href="/manifest.json">
@@ -111,7 +118,7 @@ Open the `index.html` in Chrome as a file, to show it without the application mo
 
 Change the inner html from a simple string to some markup.
 
-> # _shell1
+> Snippet: _shell1
 ```html
     <div class="shell">
       <div class="title">loading...</div>
@@ -123,7 +130,7 @@ Change the inner html from a simple string to some markup.
 
 Add some styling to sketch out what the page is going to look like.
 
-> # _shell2
+> Snippet: _shell2
 ```html
   <style>
     html,
@@ -149,14 +156,7 @@ Add some styling to sketch out what the page is going to look like.
 
 Rebuild the solution.
 
-> # Open chrome and show the shell loading
-
 # 3.1. Precache all essential assets
-
-> # ng build --prod 
-> # new tab
-
-> # clear
 
 ```bash
 >> npm install -g workbox-cli
@@ -182,7 +182,7 @@ Generate the service worker.
 
 A more powerful way to do this is not via config alone, but a template `sw.js`.
 
-> # _sw1
+> Snippet: _sw1
 #### src/sw.js
 ```js
 importScripts("workbox-v3.0.1/workbox-sw.js");
@@ -195,7 +195,7 @@ workbox.precaching.precacheAndRoute(precacheManifest);
 
 Change the config to respect the inject manifest.
 
-> # _config1
+> Snippet: _config1
 #### workbox-config.js
 ```js
   "swSrc": "src/sw.js",
@@ -208,7 +208,7 @@ Install the service worker in the `src/main.ts` file.
 
 Register the service worker after the angular app has booted. Check to make sure that this is a production build, and that service worker is actually available. Then, register it.
 
-> # _install1
+> Snippet: _install1
 ```ts
 platformBrowserDynamic()
   .bootstrapModule(AppModule)
@@ -238,7 +238,7 @@ Then we can build and test it.
 
 We're going to do this a lot, so best to add it to the `package.json` scripts.
 
-> # _config2
+> Snippet: _config2
 #### package.json
 ```json
 "start-sw": "workbox injectManifest workbox-config.js && workbox copyLibraries dist/ &&  http-server dist -c 0"
@@ -256,7 +256,7 @@ Take a look at the Application tab in Chrome dev tools, to see the service worke
 
 Add a caching route for categories.
 
-> # _sw2
+> Snippet: _sw2
 #### src/sw.js
 ```js
 const dataCacheConfig = {
@@ -270,7 +270,7 @@ Open Chrome and verify that the categories are being served from service worker.
 
 Cache the other routes of interest.
 
-> # _sw3
+> Snippet: _sw3
 #### src/sw.js
 ```js
 workbox.routing.registerRoute(/.*templates/, workbox.strategies.cacheFirst(dataCacheConfig), 'GET');
@@ -281,7 +281,7 @@ workbox.routing.registerRoute(/.*memes\/.\w+/, workbox.strategies.staleWhileReva
 # 4.2. Cache images
 
 Add some simple image caching (before the data caching).
-> # _sw4
+> Snippet: _sw4
 #### src/sw.js
 ```js
 workbox.routing.registerRoute(
@@ -300,7 +300,7 @@ Open up in Chrome, show the images stored in the cache, and then the storage sum
 
 We can automate the skip loading that we've been doing manually to force the install of the service worker.
 
-> # _sw5
+> Snippet: _sw5
 #### src/sw.js
 ```js
 self.addEventListener('install', function(event) {
@@ -314,7 +314,7 @@ This will suffice for our current need, but when the service worker updates the 
 
 Workbox has a built in queue mechanism, based off of IndexDB and the background sync api.
 
-> # _sw6
+> Snippet: _sw6
 #### src/sw.js
 ```js
 const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
@@ -322,7 +322,7 @@ const queue = new workbox.backgroundSync.Queue('memes-to-be-saved');
 
 Can listen to all `fetch` events, that is essentially any http request proxied through service worker. On the event we can opt to filter by url and method, to only deal with the `POST` to the `memes` api.
 
-> # _sw7
+> Snippet: _sw7
 #### src/sw.js
 ```js
 self.addEventListener('fetch', (event) => {
@@ -334,7 +334,7 @@ self.addEventListener('fetch', (event) => {
 
 We can then elect to make the call on behalf of the request. We expect that request to fail if the app is offline, so we catch the error and add it to the background sync queue.
 
-> # _sw8
+> Snippet: _sw8
 #### src/sw.js
 ```js
 let response = fetch(event.request.clone());
@@ -351,7 +351,7 @@ event.respondWith(response);
 
 This would work, but means that the rest of the application is ignorant to the updates. We can do better, so that the offline support is transparent.
 
-> # _sw9
+> Snippet: _sw9
 #### src/sw.js
 ```js
   /*
@@ -367,7 +367,7 @@ This would work, but means that the rest of the application is ignorant to the u
 
 > # Everything is a promise.
 
-> # _sw10
+> Snippet: _sw10
 #### src/sw.js
 ```js
 function invalidateCache(request, actualResponse) {
@@ -389,7 +389,7 @@ function invalidateCache(request, actualResponse) {
 }
 ```
 
-> # _sw11
+> Snippet: _sw11
 #### src/sw.js
 ```js
 function queueChange(request) {
@@ -429,11 +429,7 @@ function queueChange(request) {
 }
 ```
 
-> # Rebuild. Open Chrome, and show skipWaiting `sw.js` Open Chrome. Show skipWaiting `sw.js` Take offline. Create meme. Show grey, saved meme. Show console log. Show data in IndexDb. Bring online. Force Background Sync.
-
 Force background sync using the Chrome Devtools. 
-
-> _wbs
 
 ```
   > workbox-background-sync:memes-to-be-saved
