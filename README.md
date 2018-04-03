@@ -1,6 +1,6 @@
 # Building Progressive Web Apps with Angular
 
-This talk was presented at [DevConf South Africa 2018](https://www.devconf.co.za/), in both Johannesburg and Cape Town.
+This talk was presented at [DevConf South Africa 2018](https://www.devconf.co.za/), in both Johannesburg and Cape Town. [The slides can be viewed here.](https://mikegeyser.github.io/building-pwas-with-angular/#/)
 
 The holy grail of web applications is having them be near-native performance, and to a large degree this has driven the JavaScript revolution. To truly realise that goal we need to embrace native design thinking for our applications, applying it not only to our code but also to our content. Using ideas from Progressive Web Applications and a modern framework such as Angular we can create engaging, fast and available application experiences - the best of both native and web.
 
